@@ -15,20 +15,21 @@
 </head>
 <body>
     <h1>Оглавление</h1>
-    <ul>
-        <li><a href="wizard248.html">Главы 248</a></li>
-        <li><a href="wizard249.html">Главы 249</a></li>
-        <li><a href="wizard250.html">Главы 250</a></li>
-        <li><a href="wizard251.html">Главы 251</a></li>
-        <li><a href="wizard252.html">Главы 252</a></li>
-        <li><a href="wizard253.html">Главы 253</a></li>
-        <li><a href="wizard254.html">Главы 254</a></li>
-        <li><a href="wizard255.html">Главы 255</a></li>
-        <li><a href="wizard256.html">Главы 256</a></li>
-        <li><a href="wizard257.html">Главы 257</a></li>
-        <li><a href="wizard258.html">Главы 258</a></li>
-        <li><a href="wizard259.html">Главы 259</a></li>
-        <li><a href="wizard260.html">Главы 260</a></li>
-    </ul>
+    <ul id="toc"></ul>
+
+    <script>
+        const tocList = document.getElementById('toc');
+
+        for (let i = 248; i <= 300; i++) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+
+            a.href = `TableOfContents/chapter${i}.html`;
+            a.innerText = `Глава ${i}`;
+
+            li.appendChild(a);
+            tocList.appendChild(li);
+        }
+    </script>
 </body>
 </html>
