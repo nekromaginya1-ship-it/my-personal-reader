@@ -3,162 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя Читалка</title>
+    <title>Моя Библиотека Ранобэ</title>
     <style>
-        /* Базовые стили и темная тема для комфорта глаз */
-        body { font-family: sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
-        h1, h2 { color: #ffffff; }
-        button { background-color: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
-        .btn-secondary { background-color: #555; }
-        .btn-danger { background-color: #f44336; width: auto; padding: 10px; margin: 0; }
-        input, textarea { width: 100%; box-sizing: border-box; background-color: #1e1e1e; color: #fff; border: 1px solid #444; padding: 15px; margin-bottom: 15px; font-size: 16px; border-radius: 8px; }
-        textarea { height: 250px; resize: vertical; }
-
-        /* Списки глав */
-        .chapter-list { list-style: none; padding: 0; }
-        .chapter-list li { background-color: #1e1e1e; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .chapter-title-btn { background: none; border: none; color: #4CAF50; font-size: 18px; font-weight: bold; text-align: left; padding: 0; width: 70%; cursor: pointer; }
-
-        /* Скрываем ненужные экраны по умолчанию */
-        #read-view, #add-view { display: none; }
-
-        /* Идеальная разметка текста для Алисы и глаз */
-        article p { text-indent: 25px; line-height: 1.6; font-size: 18px; margin-bottom: 15px; color: #cccccc; }
+        body { font-family: sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
+        h1 { color: #fff; }
+        ul { list-style: none; padding: 0; }
+        li { background-color: #1e1e1e; margin-bottom: 10px; padding: 15px; border-radius: 8px; }
+        a { color: #4CAF50; text-decoration: none; font-size: 18px; font-weight: bold; display: block; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-
-    <!-- ЭКРАН 1: БИБЛИОТЕКА -->
-    <div id="home-view">
-        <h1>Библиотека</h1>
-        <button onclick="showAddView()">+ Загрузить новую главу</button>
-        <ul class="chapter-list" id="chapter-list">
-            <!-- Сюда будут добавляться главы -->
-        </ul>
-    </div>
-
-    <!-- ЭКРАН 2: ДОБАВЛЕНИЕ ГЛАВЫ -->
-    <div id="add-view">
-        <h2>Новая глава</h2>
-        <input type="text" id="chapter-title" placeholder="Название (например, Глава 248)">
-        <textarea id="chapter-content" placeholder="Вставь грязный переведенный текст сюда..."></textarea>
-        <button onclick="saveChapter()">Очистить, сохранить и читать</button>
-        <button class="btn-secondary" onclick="showHomeView()">Отмена</button>
-    </div>
-
-    <!-- ЭКРАН 3: ЧТЕНИЕ (Семантика настроена для Алисы) -->
-    <div id="read-view">
-        <button class="btn-secondary" onclick="showHomeView()">← Назад в библиотеку</button>
-        <!-- Заголовок h1 указывает Алисе начало статьи -->
-        <h1 id="read-title"></h1>
-        <!-- Тег article включает режим чтения в браузере -->
-        <article id="read-content"></article>
-    </div>
-
-    <script>
-        // При загрузке страницы достаем сохраненные главы из памяти браузера
-        let chapters = JSON.parse(localStorage.getItem('myLibrary')) || [];
-
-        // Функция отрисовки списка глав на главном экране
-        function renderLibrary() {
-            const list = document.getElementById('chapter-list');
-            list.innerHTML = '';
-
-            chapters.forEach((chapter, index) => {
-                const li = document.createElement('li');
-
-                const titleBtn = document.createElement('button');
-                titleBtn.className = 'chapter-title-btn';
-                titleBtn.innerText = chapter.title;
-                titleBtn.onclick = () => openChapter(index);
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn-danger';
-                deleteBtn.innerText = 'Удалить';
-                deleteBtn.onclick = () => deleteChapter(index);
-
-                li.appendChild(titleBtn);
-                li.appendChild(deleteBtn);
-                list.appendChild(li);
-            });
-        }
-
-        // Функция очистки кривого перевода (EMSP, пробелы) и обертки в абзацы <p>
-        function cleanAndFormatText(rawText) {
-            let text = rawText.replace(/\u2003/g, '').replace(/EMSP/g, '');
-            text = text.replace(/\s+([.,!?:;])/g, '$1');
-            text = text.replace(/ {2,}/g, ' ');
-
-            let paragraphs = text.split('\n');
-            return paragraphs
-                .map(p => p.trim())
-                .filter(p => p.length > 0)
-                .map(p => `<p>${p}</p>`)
-                .join('');
-        }
-
-        // Сохранение новой главы
-        function saveChapter() {
-            const titleInput = document.getElementById('chapter-title').value.trim() || 'Без названия';
-            const rawContent = document.getElementById('chapter-content').value;
-
-            if (!rawContent) {
-                alert('Текст главы пуст!');
-                return;
-            }
-
-            const cleanHtml = cleanAndFormatText(rawContent);
-
-            // Добавляем в массив и сохраняем в localStorage
-            chapters.push({ title: titleInput, content: cleanHtml });
-            localStorage.setItem('myLibrary', JSON.stringify(chapters));
-
-            // Очищаем поля ввода
-            document.getElementById('chapter-title').value = '';
-            document.getElementById('chapter-content').value = '';
-
-            showHomeView();
-        }
-
-        // Удаление главы
-        function deleteChapter(index) {
-            if (confirm('Точно удалить эту главу?')) {
-                chapters.splice(index, 1);
-                localStorage.setItem('myLibrary', JSON.stringify(chapters));
-                renderLibrary();
-            }
-        }
-
-        // Открытие главы для чтения
-        function openChapter(index) {
-            const chapter = chapters[index];
-            document.getElementById('read-title').innerText = chapter.title;
-            document.getElementById('read-content').innerHTML = chapter.content;
-
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('add-view').style.display = 'none';
-            document.getElementById('read-view').style.display = 'block';
-
-            // Прокручиваем страницу наверх
-            window.scrollTo(0, 0);
-        }
-
-        // Навигация между экранами
-        function showHomeView() {
-            renderLibrary();
-            document.getElementById('home-view').style.display = 'block';
-            document.getElementById('add-view').style.display = 'none';
-            document.getElementById('read-view').style.display = 'none';
-        }
-
-        function showAddView() {
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('add-view').style.display = 'block';
-            document.getElementById('read-view').style.display = 'none';
-        }
-
-        // Запуск отрисовки при первом открытии
-        showHomeView();
-    </script>
+    <h1>Оглавление</h1>
+    <ul>
+        <li><a href="wizard248.html">Главы 248</a></li>
+        <li><a href="wizard249.html">Главы 249</a></li>
+        <li><a href="wizard250.html">Главы 250</a></li>
+        <li><a href="wizard251.html">Главы 251</a></li>
+        <li><a href="wizard252.html">Главы 252</a></li>
+        <li><a href="wizard253.html">Главы 253</a></li>
+        <li><a href="wizard254.html">Главы 254</a></li>
+        <li><a href="wizard255.html">Главы 255</a></li>
+        <li><a href="wizard256.html">Главы 256</a></li>
+        <li><a href="wizard257.html">Главы 257</a></li>
+        <li><a href="wizard258.html">Главы 258</a></li>
+        <li><a href="wizard259.html">Главы 259</a></li>
+        <li><a href="wizard260.html">Главы 260</a></li>
+    </ul>
 </body>
 </html>
