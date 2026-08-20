@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Title</title>
+    <link rel='stylesheet' href='../style.css'>
+</head>
+<body>
+
+
+
+    <div style="display: flex; justify-content: space-between; margin-top: 30px; margin-bottom: 30px;">
+        <a id="prev-btn" href="#" style="padding: 10px 20px; background-color: #444; color: white; text-decoration: none; border-radius: 5px;">← Назад</a>
+        <a href="../index.html" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Оглавление</a>
+        <a id="next-btn" href="#" style="padding: 10px 20px; background-color: #444; color: white; text-decoration: none; border-radius: 5px;">Вперед →</a>
+    </div>
+
+    <script>
+        const currentPath = window.location.pathname;
+        const currentFile = currentPath.split('/').pop();
+
+        const match = currentFile.match(/\d+/);
+
+        if (match) {
+            const currentChapter = parseInt(match[0], 10);
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            if (currentChapter > 1) {
+                prevBtn.href = `chapter${currentChapter - 1}.html`;
+            } else {
+                prevBtn.style.display = 'none';
+            }
+
+            const maxChapters = 300;
+            if (currentChapter < maxChapters) {
+                nextBtn.href = `chapter${currentChapter + 1}.html`;
+            } else {
+                nextBtn.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
